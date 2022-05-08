@@ -1,0 +1,64 @@
+#include <Arduino.h>
+
+#include "driver/ledc.h"
+#include "esp_err.h"
+#include "WiFi.h"
+#include "SPI.h"
+#include "U8g2lib.h"
+
+//#include "esp32-hal-ledc.h"
+
+#define LEDC_TIMER              LEDC_TIMER_0
+#define LEDC_MODE               LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO          (2) // Define the output GPIO
+#define LEDC_CHANNEL            LEDC_CHANNEL_0
+#define LEDC_DUTY_RES           LEDC_TIMER_13_BIT // Set duty resolution to 13 bits
+#define LEDC_DUTY               (4095) // Set duty to 50%. ((2 ** 13) - 1) * 50% = 4095
+#define LEDC_FREQUENCY          (15) // Frequency in Hertz. Set frequency at 5 kHz
+#define LED 2
+//U8G2_SSD1306_128X64_NONAME2_F_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 2, /* data=*/ 4,/* cs=*/ 19, /* dc=*/ 18, /* reset=*/ 5);
+U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 2, /* data=*/ 4,/* cs=*/ 19, /* dc=*/ 18, /* reset=*/ 5);
+static void example_ledc_init(void)
+{ 
+    // Prepare and then apply the LEDC PWM timer configuration
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_MODE,
+        {.duty_resolution  = LEDC_DUTY_RES}, 
+        .timer_num        = LEDC_TIMER,
+        .freq_hz          = LEDC_FREQUENCY,  // Set output frequency at 5 kHz
+
+    };
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+
+    // Prepare and then apply the LEDC PWM channel configuration
+    ledc_channel_config_t ledc_channel = {
+        .gpio_num       = LEDC_OUTPUT_IO,
+        .speed_mode     = LEDC_MODE,
+        .channel        = LEDC_CHANNEL,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .timer_sel      = LEDC_TIMER,
+        .duty           = 50, // Set duty to 0%
+        .hpoint         = 0
+    };
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+}
+
+void setup(){
+    u8g2.begin();
+
+    pinMode(LED,OUTPUT);    // Set the LEDC peripheral configuration
+    example_ledc_init();
+    // Set duty to 50%
+    ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, LEDC_DUTY));
+    // Update duty to apply the new value
+    ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
+
+}
+void loop(){
+    u8g2.clearBuffer();                   // clear the internal memory
+    u8g2.setFont(u8g2_font_ncenB14_tr);   // choose a suitable font
+    u8g2.drawStr(0,20,"Hello World!");    // write something to the internal memory
+    u8g2.sendBuffer();                    // transfer internal memory to the display
+    delay(1000);
+}
+
