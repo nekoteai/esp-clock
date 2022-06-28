@@ -1,27 +1,18 @@
 #include "Arduino.h"
+#include "EEPROM.h"
+#include "FS.h"
+#include "SPI.h"
 char buff[200];
 char inbyte;
 int i;
+void weatherinfo();
 void setup(void){
-    Serial.begin(9600);
-    
+    Serial.begin(115200);
     while(!Serial){
         ;
     }
 }
 void loop(){
-    if(Serial.available()>0){
-        inbyte = Serial.read();
-        if(inbyte=='\n'){
-            buff[i]='\0';
-            i = 0;
-            Serial.printf("you input:");
-            Serial.printf(buff);
-        }
-        else{
-            buff[i]=inbyte;
-            i++;
-        }
-    }
+weatherinfo();
 
 }
