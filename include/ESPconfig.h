@@ -37,3 +37,10 @@ const char* rootCACertificate = \
 "m9T8bJUox04FB6b9HbwZ4ui3uRGKLXASUoWNjDNKD/yZkuBjcNqllEdjB+dYxzFf\n" \
 "BT02Vf6Dsuimrdfp5gJ0iHRc2jTbkNJtUQoj1iM=\n" \
 "-----END CERTIFICATE-----\n";
+const char* API_key="";
+const char* weather_url="";
+const int citycode=0;
+const char *loc_timezone="CST-8";
+void set_clock(const char *tz);
+const char *ssid = "COIO";
+const char *password = "87654321";
